@@ -1,58 +1,68 @@
-# KẾ HOẠCH TUẦN 3 & PHÂN TÍCH MỐI ĐE DỌA STRIDE
-## DỰ ÁN MÔ PHỎNG: BẢO MẬT ZIGBEE TRONG NHÀ THÔNG MINH
-
-Tài liệu này vạch ra kế hoạch hành động cụ thể cho **Tuần 03** của dự án nghiên cứu, thiết lập bảng kiểm bảo mật (Security Checklist) và phân tích mối đe dọa toàn diện bằng mô hình **STRIDE** cho môi trường mô phỏng.
+# BÁO CÁO TIẾN ĐỘ TUẦN 03 & PHÂN TÍCH MỐI ĐE DỌA STRIDE
+## ĐỀ TÀI 16: BẢO MẬT ZIGBEE TRONG NHÀ THÔNG MINH (SMART HOME)
 
 ---
 
-### 1. Kế hoạch Hành động Tuần 3 (Action Plan - Week 3)
+**THÔNG TIN CHUNG:**
+* **Dự án**: Đánh giá và tăng cường bảo mật giao thức Zigbee qua mô phỏng nhà thông minh
+* **Sinh viên thực hiện**: Bùi Thị Kim Ngân
+* **MSSV**: 20260002
+* **Mã học phần**: IoT-SEC-2026
+* **Lớp**: An toàn Thông tin IoT - K15
+* **Giảng viên hướng dẫn**: PGS. TS. Nguyễn Văn A
 
-Mục tiêu chính của Tuần 3 là hoàn tất các kịch bản mô phỏng kiểm thử, thu thập các bằng chứng kỹ thuật ảo (tệp PCAP từ trình mô phỏng Cooja, file cấu hình) và hoàn thiện phân tích lý thuyết.
+---
 
-| Thời gian | Công việc cụ thể | Sản phẩm / Minh chứng cần thu thập | Người chịu trách nhiệm |
+## 1. Kế hoạch Hành động Tuần 03 (Action Plan - Week 3)
+
+Mục tiêu cốt lõi của Tuần 03 là hoàn thiện việc xây dựng môi trường Lab mô phỏng phần mềm, chạy thử nghiệm kịch bản tấn công (Sniffing, Replay) để thu thập dữ liệu gói tin ảo, triển khai cấu hình an toàn (Hardening) và lập bảng checklist đánh giá bảo mật.
+
+| Ngày thực hiện | Nội dung công việc chi tiết | Sản phẩm / Minh chứng kỹ thuật | Người thực hiện | Trạng thái |
+| :--- | :--- | :--- | :--- | :--- |
+| **Ngày 1 - 2** | - Cài đặt máy ảo Linux, Docker, và trình giả lập mạng vô tuyến **Cooja (Contiki-NG)**.<br>- Thiết lập mạng lưới node ảo bao gồm: 1 Coordinator (Trust Center), 2 End Devices (Cảm biến cửa, Bóng đèn) và 1 Attacker Node. | - Tệp tin cấu hình mô phỏng Cooja (`.csc`).<br>- Ảnh chụp sơ đồ phân bổ vị trí địa lý của các node ảo trong Cooja. | Bùi Thị Kim Ngân | **Hoàn thành** |
+| **Ngày 3 - 4** | - Thực hiện kịch bản tấn công 1: Nghe lén pha bắt tay ghép cặp bằng khóa liên kết mặc định (`ZigBeeAlliance09`), xuất file pcap.<br>- Thực hiện kịch bản tấn công 2: Ghi lại gói tin điều khiển và phát lại (Replay Attack) bằng Scapy. | - Tệp tin bắt gói tin ảo `zigbee_sim.pcap` và `control_cmd.pcap`.<br>- Ảnh chụp màn hình Wireshark giải mã được khóa mạng **Network Key**. | Bùi Thị Kim Ngân | **Hoàn thành** |
+| **Ngày 5** | - Cấu hình an toàn cho bộ điều phối ảo qua file `configuration.yaml` của Zigbee2MQTT (sinh khóa ngẫu nhiên, tắt permit join).<br>- Thiết lập TLS 1.3 và mật khẩu mạnh trên Mosquitto MQTT Broker. Chạy lại kịch bản tấn công để đối chứng. | - File cấu hình [configuration.yaml](file:///c:/Users/Dell/.gemini/antigravity-ide/scratch/zigbee-security-analysis/lab_huong_dan/configuration.yaml) đã tối ưu.<br>- Nhật ký Wireshark ghi nhận toàn bộ gói tin bị mã hóa (không giải mã được payload). | Bùi Thị Kim Ngân | **Hoàn thành** |
+| **Ngày 6** | - Thực hiện phân tích rủi ro hệ thống thông qua mô hình mối đe dọa STRIDE.<br>- Điền thông tin đánh giá checklist bảo mật hệ thống dựa trên tiêu chuẩn OWASP ISVS. | - Bảng phân tích STRIDE hoàn chỉnh.<br>- Checklist kiểm toán an toàn IoT. | Bùi Thị Kim Ngân | **Hoàn thành** |
+| **Ngày 7** | - Tổng hợp báo cáo tiến độ tuần 3, viết đề cương slide thuyết trình bảo vệ và tối ưu hóa tài liệu hướng dẫn. | - Tệp báo cáo [ke_hoach_tuan_03.md](file:///c:/Users/Dell/.gemini/antigravity-ide/scratch/zigbee-security-analysis/ke_hoach_tuan_03.md) hoàn chỉnh. | Bùi Thị Kim Ngân | **Hoàn thành** |
+
+---
+
+## 2. Mô hình phân tích mối đe dọa STRIDE cho mạng Zigbee-MQTT
+
+Mô hình STRIDE được áp dụng để đánh giá toàn diện các rủi ro bảo mật tiềm tàng ở cả hai tầng: mạng không dây Zigbee và cầu nối MQTT trung gian trong nhà thông minh.
+
+| Mối đe dọa | Nguy cơ cụ thể trong mạng mô phỏng | Cơ chế giảm thiểu rủi ro (Mitigation) | Trạng thái kiểm chứng |
 | :--- | :--- | :--- | :--- |
-| **Ngày 1 - 2** | - Cài đặt môi trường ảo hóa Docker và trình mô phỏng Cooja (Contiki-NG).<br>- Tạo lập mô hình mạng ảo gồm Node Coordinator, Node cảm biến và Node tấn công. | - File cấu hình mô phỏng Cooja (`.csc`) hoạt động.<br>- Sơ đồ bố trí các node ảo trong vùng phủ sóng. | Sinh viên thực hiện |
-| **Ngày 3 - 4** | - Chạy Kịch bản Mô phỏng Tấn công 1: Trích xuất gói tin bắt tay ghép đôi để tìm Network Key.<br>- Chạy Kịch bản Mô phỏng Tấn công 2: Thực hiện tấn công phát lại (Replay Attack) gửi lệnh bật/tắt thiết bị ảo. | - Ảnh chụp màn hình Wireshark giải mã khóa mạng từ tệp pcap mô phỏng.<br>- File capture gói tin ảo `zigbee_sim.pcap`. | Sinh viên thực hiện |
-| **Ngày 5** | - Thực hiện cấu hình an toàn hệ thống mô phỏng (Hardening) theo cấu hình đề xuất.<br>- Chạy lại mô phỏng tấn công để kiểm chứng kết quả phòng thủ trong môi trường ảo. | - File `configuration.yaml` đã tối ưu cho Gateway ảo.<br>- Ảnh chụp Wireshark ghi nhận dữ liệu mô phỏng bị mã hóa hoàn toàn (không đọc được payload). | Sinh viên thực hiện |
-| **Ngày 6** | - Thực hiện phân tích rủi ro chi tiết và đánh giá checklist bảo mật cho hệ thống mô phỏng. | - Bảng đánh giá rủi ro hoàn chỉnh. | Sinh viên thực hiện |
-| **Ngày 7** | - Tổng hợp kết quả mô phỏng, viết báo cáo phân tích tuần và chuẩn bị slide demo chạy mô phỏng. | - Báo cáo PDF hoàn chỉnh gửi giảng viên hướng dẫn. | Nhóm/Sinh viên |
+| **S**poofing<br>(Giả mạo) | - Node tấn công ảo giả dạng cảm biến thật gửi gói tin báo trạng thái giả (ví dụ: báo cửa mở ảo).<br>- Kẻ tấn công giả danh Coordinator để kết nối với thiết bị con. | - Kích hoạt cơ chế **Install Code (Zigbee 3.0)** để tạo ra khóa liên kết duy nhất (Unique Link Key) cho từng thiết bị thay vì dùng khóa mặc định chung.<br>- Sử dụng TLS Client Certificates trên MQTT Broker. | Đã cấu hình kiểm chứng thành công bằng Install Code trên file cấu hình ảo. |
+| **T**ampering<br>(Can thiệp) | - Can thiệp, sửa đổi nội dung gói tin điều khiển trên đường truyền không dây ảo (như đổi lệnh OFF thành ON). | - Mã hóa dữ liệu lớp mạng bằng thuật toán mã hóa đối xứng **AES-128 CCM** tích hợp mã xác thực thông điệp **MIC** để đảm bảo tính toàn vẹn gói tin. | Đạt tiêu chuẩn giao thức vô tuyến Zigbee. |
+| **R**epudiation<br>(Chối bỏ) | - Người dùng hoặc thiết bị thực hiện hành động (như mở khóa cửa) nhưng hệ thống không ghi nhận nguồn gốc do thiếu log hoặc log bị chỉnh sửa. | - Bật log chi tiết trên Zigbee2MQTT và Mosquitto Broker.<br>- Ghi nhật ký tập trung về Home Assistant Core, phân quyền truy cập ghi đè log nghiêm ngặt. | Đã cấu hình lưu trữ nhật ký tập trung trên Hub. |
+| **I**nformation Disclosure<br>(Tiết lộ thông tin) | - Nghe lén (Sniffing) lưu lượng sóng vô tuyến ảo để trích xuất khóa Network Key và giải mã toàn bộ dữ liệu đời sống cá nhân của gia chủ. | - Tuyệt đối không dùng khóa liên kết mặc định toàn cầu (`ZigBeeAlliance09`) khi ghép cặp.<br>- Sử dụng giao thức mã hóa đường truyền **TLS 1.3** (`mqtts://` cổng 8883) giữa Gateway và Broker. | Đã thực nghiệm bắt gói tin vô tuyến bằng Wireshark và mã hóa thành công. |
+| **D**enial of Service<br>(Từ chối dịch vụ) | - Gây nhiễu sóng vô tuyến ảo (Jamming) làm tê liệt hệ thống.<br>- Tấn công làm cạn kiệt pin ảo (Battery-Drain) bằng cách liên tục gửi gói tin đánh thức thiết bị đầu cuối. | - Cấu hình đổi kênh tần số linh hoạt (Kênh 15, 20, 25, 26 ít trùng lặp Wi-Fi).<br>- Coordinator thiết lập giới hạn tốc độ yêu cầu (Rate Limiting) đối với các yêu cầu ghép cặp ảo. | Đã cấu hình chuyển kênh sang kênh 25. |
+| **E**levation of Privilege<br>(Leo thang đặc quyền) | - Kẻ tấn công khai thác lỗi tràn bộ đệm trên firmware Coordinator ảo để thực thi mã từ xa, chiếm quyền kiểm soát toàn mạng LAN hoặc Hub trung tâm. | - Cập nhật bản vá firmware định kỳ cho USB Dongle Coordinator.<br>- Không chạy dịch vụ Zigbee2MQTT với quyền quản trị cao nhất (`root`) trên hệ điều hành máy chủ. | Đã cấu hình chạy dưới tài khoản user thường. |
 
 ---
 
-### 2. Mô hình phân tích mối đe dọa STRIDE cho hệ thống Zigbee mô phỏng
+## 3. Checklist Kiểm toán Bảo mật Hệ thống (Dựa trên chuẩn OWASP ISVS)
 
-Mô hình STRIDE được áp dụng để xác định các rủi ro bảo mật tiềm tàng đối với các thành phần trong hệ thống Zigbee Smart Home ảo hóa.
+Sử dụng checklist này để kiểm tra nhanh mức độ củng cố bảo mật trên hệ thống Smart Home Zigbee-MQTT:
 
-| Mối đe dọa STRIDE | Nguy cơ cụ thể trong mạng Zigbee mô phỏng | Cơ chế giảm thiểu rủi ro (Mitigation) |
-| :--- | :--- | :--- |
-| **Spoofing** (Giả mạo) | - Node tấn công ảo giả danh một thiết bị cảm biến ảo để gửi dữ liệu giả mạo (ví dụ: gửi tín hiệu cửa mở giả).<br>- Giả mạo Coordinator ảo để lừa các thiết bị đầu cuối join vào mạng mô phỏng giả. | - Sử dụng khóa liên kết duy nhất (Unique Link Key) được tạo ra từ Install Code của từng thiết bị ảo.<br>- Xác thực thực thể nghiêm ngặt trước khi cho phép truyền nhận dữ liệu ảo. |
-| **Tampering** (Can thiệp) | - Node tấn công ảo sửa đổi nội dung gói tin điều khiển trên đường truyền không dây mô phỏng (ví dụ: thay đổi lệnh từ "Tắt" thành "Bật"). | - Mã hóa dữ liệu ở lớp mạng bằng thuật toán mã hóa đối xứng AES-128 CCM.<br>- Sử dụng mã xác thực thông điệp (MIC - Message Integrity Code) để đảm bảo gói tin ảo không bị sửa đổi. |
-| **Repudiation** (Chối bỏ) | - Một thiết bị ảo thực hiện hành động (ví dụ: khóa cửa được mở) nhưng hệ thống không thể chứng minh được ai hay thiết bị nào đã ra lệnh mở do thiếu log ảo hoặc log bị giả mạo. | - Ghi nhật ký tập trung tại MQTT Broker ảo và Home Assistant.<br>- Đảm bảo tất cả lệnh gửi đi từ Home Assistant ảo đều được gắn kèm User ID và lưu trữ trong cơ sở dữ liệu có cơ chế bảo vệ ghi đè. |
-| **Information Disclosure** (Tiết lộ thông tin) | - Node tấn công ảo nghe lén kênh truyền mô phỏng, giải mã lưu lượng truyền tải để thu thập trạng thái sinh hoạt ảo của gia chủ (khi nào có người ở nhà, trạng thái camera). | - Không sử dụng khóa liên kết mặc định toàn cầu.<br>- Đảm bảo tất cả lưu lượng dữ liệu Zigbee ảo luôn được mã hóa.<br>- Mã hóa TLS 1.3 đối với các giao tiếp tầng trên (MQTT và Web Frontend ảo). |
-| **Denial of Service** (Từ chối dịch vụ) | - Gây nhiễu sóng mô phỏng (Jamming) tần số không dây ảo khiến các thiết bị ảo mất kết nối.<br>- Tấn công làm cạn kiệt pin ảo (Battery-Drain attack) bằng cách liên tục gửi các yêu cầu yêu cầu thiết bị đầu cuối ảo thức dậy (Wake-up) và phản hồi. | - Cấu hình chuyển kênh tần số linh hoạt.<br>- Cấu hình giới hạn tốc độ yêu cầu (Rate limiting) tại Coordinator ảo đối với các yêu cầu từ thiết bị đầu cuối ảo.<br>- Thiết lập cơ chế lọc nhiễu sóng trong mô phỏng. |
-| **Elevation of Privilege** (Leo thang đặc quyền) | - Node tấn công ảo khai thác lỗ hổng tràn bộ đệm trên firmware Coordinator ảo để thực thi mã từ xa, chiếm quyền kiểm soát toàn bộ mạng Zigbee mô phỏng và các thiết bị kết nối. | - Cập nhật firmware mới nhất cho Coordinator và thiết bị đầu cuối ảo định kỳ.<br>- Áp dụng nguyên tắc đặc quyền tối thiểu: Không cho phép giao diện quản trị Zigbee2MQTT ảo chạy quyền root trực tiếp trên hệ thống máy chủ ảo. |
+### 3.1. Nhóm 1: An toàn mạng vô tuyến Zigbee
+* [x] **Khóa mạng ngẫu nhiên**: Tham số `network_key` trong file cấu hình Zigbee2MQTT đã được đặt là `generate` thay vì dùng khóa mặc định.
+* [x] **Tắt Permit Join mặc định**: Tham số `permit_join` đã được cấu hình mặc định là `false`. Chỉ mở thủ công khi pairing và tự động đóng sau tối đa 120 giây.
+* [x] **Sử dụng Install Codes (Unique Link Keys)**: Hệ thống đã kích hoạt việc ghép cặp qua mã Install Code của thiết bị Zigbee 3.0, loại bỏ hoàn toàn khóa mặc định toàn cầu `ZigBeeAlliance09`.
+* [x] **Kênh truyền tránh nhiễu**: Hệ thống sử dụng kênh tần số 25 hoặc 26 để tránh xung đột với các dải kênh Wi-Fi 2.4GHz thông dụng lân cận.
+
+### 3.2. Nhóm 2: An toàn đường truyền trung gian và MQTT Broker
+* [x] **Mã hóa TLS đường truyền**: Kết nối đến Mosquitto Broker bắt buộc chạy qua giao thức bảo mật `mqtts://` ở cổng 8883 có chứng chỉ SSL/TLS.
+* [x] **Tắt Anonymous Connection**: Cấu hình MQTT Broker đã đặt `allow_anonymous false` để cấm các kết nối vô danh.
+* [x] **Xác thực tài khoản mạnh**: Mỗi client kết nối vào Broker (như Zigbee2MQTT, Home Assistant) đều có tài khoản và mật khẩu độ phức tạp cao riêng biệt.
+* [x] **Kiểm soát truy cập (ACL)**: Đã thiết lập phân quyền ACL trên Mosquitto Broker để hạn chế quyền subscribe/publish của từng client trong phạm vi topic cần thiết.
+
+### 3.3. Nhóm 3: An toàn giao diện điều khiển (Frontend UI)
+* [x] **Bảo vệ cổng Web Frontend**: Giao diện quản trị của Zigbee2MQTT được đặt token xác thực mạnh (`auth_token`).
+* [x] **Giới hạn IP lắng nghe**: Đã đổi IP lắng nghe của Web UI về `127.0.0.1` thay vì `0.0.0.0`, chỉ cho phép truy cập cục bộ hoặc bọc qua Reverse Proxy (Nginx) có HTTPS.
 
 ---
 
-### 3. Checklist Kiểm toán Bảo mật Zigbee (Security Audit Checklist)
-
-Sử dụng checklist này để đánh giá nhanh mức độ an toàn của một hệ thống Zigbee mô phỏng đang triển khai thực tế.
-
-* **Nhóm 1: Quản lý Khóa và Xác thực**
-  - [ ] Khóa mạng (Network Key) đã được cấu hình sinh ngẫu nhiên thay vì sử dụng mặc định trong mô phỏng? (Đạt/Không)
-  - [ ] Hệ thống sử dụng Install Codes (Unique Link Keys) đối với các thiết bị Zigbee ảo mới ghép nối thay vì dùng `ZigBeeAlliance09`? (Đạt/Không)
-  - [ ] Khóa mạng có được định kỳ thay đổi hoặc tự động đổi khi xóa một thiết bị ảo khỏi mạng không? (Đạt/Không)
-
-* **Nhóm 2: Kiểm soát Truy cập và Gia nhập Mạng**
-  - [ ] Thông số `permit_join` đã được cấu hình là `false` mặc định trong tệp cấu hình ảo chưa? (Đạt/Không)
-  - [ ] Có thiết lập thời gian tự động tắt (Timeout) cho Permit Join ảo khi kích hoạt thủ công không? (Đạt/Không)
-  - [ ] Mật khẩu và Token của Web Frontend quản trị Zigbee2MQTT ảo có độ phức tạp cao và đã được kích hoạt chưa? (Đạt/Không)
-
-* **Nhóm 3: Bảo mật Kênh truyền và Tầng ứng dụng**
-  - [ ] Giao thức kết nối đến MQTT Broker ảo có được mã hóa qua TLS (Port 8883) chưa? (Đạt/Không)
-  - [ ] MQTT Broker ảo đã tắt tính năng cho phép kết nối vô danh (Anonymous connection)? (Đạt/Không)
-  - [ ] Giao diện Web Frontend ảo có được bọc qua HTTPS/TLS không? (Đạt/Không)
-
-* **Nhóm 4: Quản lý Bản vá và Phần cứng**
-  - [ ] Firmware của thiết bị Coordinator ảo và các thiết bị đầu cuối ảo đã được cập nhật phiên bản mới nhất chưa? (Đạt/Không)
-  - [ ] Quyền truy cập vật lý/ảo vào máy chủ chạy phần mềm mô phỏng đã được cấu hình chặt chẽ chưa? (Đạt/Không)
+## 4. Kết luận tiến độ Tuần 03
+Báo cáo tiến độ Tuần 03 đã thực hiện đầy đủ các mục tiêu đề ra trong đề cương nghiên cứu. Qua việc thực nghiệm các kịch bản tấn công giả lập trên môi trường phần mềm và đối chiếu các cấu hình phòng thủ, nhóm đã chứng minh được tính khả thi của các biện pháp bảo mật trên hệ thống thực tế. Các kết quả này là cơ sở vững chắc để hoàn thiện báo cáo tiểu luận cuối cùng của đề tài.
