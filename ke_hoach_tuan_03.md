@@ -4,12 +4,12 @@
 ---
 
 **THÔNG TIN CHUNG:**
-* **Dự án**: Đánh giá và tăng cường bảo mật giao thức Zigbee qua mô phỏng nhà thông minh
+* **Dự án**: Bảo mật Zigbee trong nhà thông minh
 * **Sinh viên thực hiện**: Bùi Thị Kim Ngân
-* **MSSV**: 20260002
-* **Mã học phần**: IoT-SEC-2026
-* **Lớp**: An toàn Thông tin IoT - K15
-* **Giảng viên hướng dẫn**: PGS. TS. Nguyễn Văn A
+* **MSSV**: 231A010257
+* **Mã học phần**: 253INT441001
+* **Lớp**: An toàn Thông tin IoT 
+* **Giảng viên hướng dẫn**: Th.S Hồ Nhựt Minh
 
 ---
 
