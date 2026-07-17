@@ -4,14 +4,10 @@
 
 **THÔNG TIN CHUNG:**
 * **Đề tài**: Đề tài 16. Bảo mật Zigbee trong nhà thông minh
-* **Nhóm thực hiện**: Nhóm 16
-* **Mã học phần**: IoT-SEC-2026
-* **Lớp**: An toàn Thông tin IoT - K15
-* **Giảng viên hướng dẫn**: PGS. TS. Nguyễn Văn A
-* **Thành viên thực hiện**: 
-  - Nguyễn Văn Trưởng (Trưởng nhóm) - MSSV: 20260001
-  - Trần An Ninh - MSSV: 20260002
-  - Lê Bảo Mật - MSSV: 20260003
+* **Mã học phần**: 253INT441001
+* **Lớp**: Bảo mật Zigbee trong nhà thông minh
+* **Giảng viên hướng dẫn**: Th.S Hồ Nhựt Minh
+* **Thành viên thực hiện**: Bùi Thị Kim Ngân
 
 ---
 
