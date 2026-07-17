@@ -1,172 +1,368 @@
-# BÁO CÁO PHÂN TÍCH VÀ MÔ PHỎNG BẢO MẬT GIAO THỨC ZIGBEE TRONG HỆ THỐNG NHÀ THÔNG MINH (SMART HOME)
+# TIỂU LUẬN: ĐÁNH GIÁ VÀ TĂNG CƯỜNG BẢO MẬT GIAO THỨC ZIGBEE TRONG HỆ THỐNG NHÀ THÔNG MINH (SMART HOME)
+
+---
+
+**THÔNG TIN CHUNG:**
+* **Đề tài**: Đề tài 16. Bảo mật Zigbee trong nhà thông minh
+* **Nhóm thực hiện**: Nhóm 16
+* **Mã học phần**: IoT-SEC-2026
+* **Lớp**: An toàn Thông tin IoT - K15
+* **Giảng viên hướng dẫn**: PGS. TS. Nguyễn Văn A
+* **Thành viên thực hiện**: 
+  - Nguyễn Văn Trưởng (Trưởng nhóm) - MSSV: 20260001
+  - Trần An Ninh - MSSV: 20260002
+  - Lê Bảo Mật - MSSV: 20260003
 
 ---
 
 ## MỤC LỤC
-1. [GIỚI THIỆU & TÍNH CẤP THIẾT CỦA ĐỀ TÀI](#1-giới-thiệu--tính-cấp-thiết-của-đề-tài)
-2. [MỤC TIÊU VÀ PHẠM VI NGHIÊN CỨU](#2-mục-tiêu-và-phạm-vi-nghiên-cứu)
-3. [BẢNG ÁNH XẠ GIAO THỨC - CỔNG - CƠ CHẾ BẢO MẬT](#3-bảng-ánh-xạ-giao-thức---cổng---cơ-chế-bảo-mật)
-4. [ĐỐI CHIẾU CẤU HÌNH MẶC ĐỊNH VÀ CẤU HÌNH AN TOÀN](#4-đối-chiếu-cấu-hình-mặc-định-và-cấu-hình-an-toàn)
-5. [MÔ HÌNH MÔ PHỎNG LAB & KỊCH BẢN KIỂM CHỨNG BẢO MẬT](#5-mô-hình-mô-phỏng-lab--kịch-bản-kiểm-chứng-bảo-mật)
-6. [KẾ HOẠCH TUẦN 03 & CHECKLIST ĐÁNH GIÁ AN TOÀN THÔNG TIN](#6-kế-hoạch-tuần-03--checklist-đánh-giá-an-toàn-thông-tin)
-7. [MÔ HÌNH PHÂN TÍCH MỐI ĐE DỌA STRIDE](#7-mô-hình-phân-tích-mối-đe-dọa-stride)
-8. [TÀI LIỆU THAM KHẢO](#8-tài-liệu-tham-khảo)
+1. [MỞ ĐẦU](#1-mở-đầu)
+2. [CƠ SỞ LÝ THUYẾT VỀ MẠNG ZIGBEE & BẢO MẬT](#2-cơ-sở-lý-thuyết-về-mạng-zigbee--bảo-mật)
+3. [PHƯƠNG PHÁP THỰC HIỆN & MÔ HÌNH HỆ THỐNG](#3-phương-pháp-thực-hiện--mô-hình-hệ-thống)
+4. [PHÂN TÍCH RỦI RO QUÁ TRÌNH GIA NHẬP MẠNG](#4-phân-tích-rủi-ro-quá-trình-gia-nhập-mạng)
+5. [ĐÁNH GIÁ BẢO MẬT CHUYÊN SÂU & KỸ THUẬT TẤN CÔNG](#5-đánh-giá-bảo-mật-chuyên-sâu--kỹ-thuật-tấn-công)
+6. [ĐỀ XUẤT CẤU HÌNH AN TOÀN CHO HỆ THỐNG](#6-đề-xuất-cấu-hình-an-toàn-cho-hệ-thống)
+7. [CHECKLIST BẢO MẬT ZIGBEE & MQTT THEO CHUẨN OWASP ISVS](#7-checklist-bảo-mật-zigbee--mqtt-theo-chuẩn-owasp-isvs)
+8. [KẾT LUẬN VÀ TÀI LIỆU THAM KHẢO](#8-kết-luận-và-tài-liệu-tham-khảo)
 
 ---
 
-## 1. GIỚI THIỆU & TÍNH CẤP THIẾT CỦA ĐỀ TÀI
+## 1. MỞ ĐẦU
 
-Trong kỷ nguyên Internet vạn vật (IoT), hệ thống nhà thông minh (Smart Home) đang chứng kiến sự bùng nổ mạnh mẽ. Trong số các tiêu chuẩn kết nối không dây, **Zigbee** (dựa trên tiêu chuẩn IEEE 802.15.4) đã trở thành một trong những giao thức truyền thông phổ biến nhất nhờ vào các ưu điểm vượt trội: tiêu thụ năng lượng cực thấp, khả năng tự tổ chức mạng lưới (mesh network) linh hoạt và chi phí triển khai rẻ.
+### 1.1. Vấn đề bảo mật IoT cần giải quyết
+Sự bùng nổ của các thiết bị Internet vạn vật (IoT) trong không gian nhà thông minh (Smart Home) mang lại sự tiện nghi vượt trội nhưng cũng mở ra nhiều thách thức bảo mật nghiêm trọng. Hầu hết các thiết bị IoT gia dụng như cảm biến, ổ cắm, bóng đèn thông minh đều bị giới hạn nghiêm ngặt về tài nguyên phần cứng (vi điều khiển công suất thấp, dung lượng bộ nhớ nhỏ, nguồn cấp từ pin). Điều này khiến việc áp dụng các cơ chế mã hóa bất đối xứng phức tạp hay xác thực đa nhân tố trực tiếp trên thiết bị đầu cuối trở nên bất khả thi.
 
-Tuy nhiên, do các thiết bị Zigbee đầu cuối thường bị giới hạn về năng lượng pin và năng lực xử lý của vi điều khiển, việc áp dụng các thuật toán mã hóa và xác thực phức tạp gặp nhiều rào cản. Thực tiễn triển khai cho thấy, phần lớn các lỗ hổng bảo mật không đến từ bản thân thuật toán mã hóa AES-128 được Zigbee sử dụng, mà đến từ **cách thức quản lý khóa (Key Management)** và **các cấu hình mặc định (Default Configurations)** của nhà sản xuất hoặc người dùng tự lắp đặt (DIY). Việc sử dụng khóa liên kết mặc định toàn cầu (`ZigBeeAlliance09`), để trạng thái cho phép gia nhập mạng luôn mở (`Permit Join: true`), hay không sử dụng HTTPS/TLS ở các tầng ứng dụng trung gian tạo ra những véc-tơ tấn công nguy hiểm.
+Trong số các giao thức không dây tầm ngắn, **Zigbee** (dựa trên tiêu chuẩn IEEE 802.15.4) được ưa chuộng nhất nhờ mô hình mạng lưới (mesh network) tự tổ chức và mức tiêu thụ năng lượng cực thấp. Tuy nhiên, các nhà sản xuất thiết bị thương mại và cộng đồng tự lắp đặt (DIY) thường bỏ qua các bước cấu hình bảo mật cơ bản, dẫn đến việc sử dụng các khóa liên kết mặc định toàn cầu, mở trạng thái gia nhập mạng vô thời hạn hoặc không bảo mật đường truyền trung gian. Kẻ tấn công có thể lợi dụng sóng vô tuyến để thực hiện nghe lén khóa mạng, từ đó chèn mã độc, giả mạo trạng thái cảm biến hoặc gửi lệnh điều khiển trái phép (ví dụ: mở khóa cửa thông minh). Do đó, việc nghiên cứu các lỗ hổng bảo mật của Zigbee, phân tích các vector tấn công và đề xuất phương án cấu hình phòng thủ là vô cùng cấp bách.
 
-Để phân tích và đánh giá các nguy cơ này mà không yêu cầu chi phí phần cứng cao, phương pháp **mô phỏng phần mềm (Software-based Simulation)** đóng vai trò quan trọng. Báo cáo này tập trung vào việc nghiên cứu kiến trúc bảo mật của Zigbee, thiết lập môi trường mô phỏng không dây bằng **Cooja Simulator (Contiki-NG)** kết hợp với phân tích lưu lượng gói tin ảo trên **Wireshark**, thực hiện các kịch bản tấn công giả lập (Sniffing, Replay) và đề xuất các giải pháp tăng cường bảo mật (Hardening) thực tế.
-
----
-
-## 2. MỤC TIÊU VÀ PHẠM VI NGHIÊN CỨU
-
-### 2.1. Mục tiêu đề tài
-* **Nghiên cứu lý thuyết**: Làm rõ kiến trúc bảo mật đa tầng của Zigbee (Physical, MAC, Network, Application Support Sublayer).
-* **Mô phỏng thực nghiệm**: Thiết lập một mô hình mạng Zigbee ảo để tái dựng các kịch bản tấn công nghe lén thu giữ khóa mạng và tấn công phát lại (Replay Attack) điều khiển thiết bị ảo.
-* **Đề xuất giải pháp**: Xây dựng cấu hình an toàn cho bộ điều phối trung tâm Zigbee2MQTT ảo và thiết lập checklist kiểm toán an ninh mạng.
-
-### 2.2. Phạm vi nghiên cứu
-* **Giao thức**: Zigbee 3.0 và Zigbee Home Automation (HA 1.2).
-* **Môi trường mô phỏng**: Trình mô phỏng mạng không dây Cooja (Contiki-NG), kết hợp phần mềm bắt gói tin Wireshark và công cụ kiểm thử bảo mật không dây ảo (KillerBee / Scapy).
-* **Giới hạn tấn công**: Tập trung vào lớp mạng (NWK) và lớp hỗ trợ ứng dụng (APS) trong pha ghép cặp (Pairing Phase) và pha truyền lệnh điều khiển.
+### 1.2. Phạm vi đề tài
+Tiểu luận tập trung nghiên cứu:
+* Kiến trúc bảo mật đa tầng của giao thức Zigbee (tập trung vào lớp NWK và lớp APS).
+* Quá trình ghép cặp thiết bị mới (Association) và rủi ro rò rỉ khóa mạng (Network Key).
+* Mô hình cầu nối chuyển đổi giao thức giữa Zigbee và MQTT thông qua giải pháp **Zigbee2MQTT** kết hợp **MQTT Broker (Mosquitto)**.
+* Đánh giá bảo mật dựa trên mô hình đe dọa STRIDE và xây dựng checklist an toàn thông tin dựa theo bộ tiêu chuẩn **OWASP ISVS (IoT Security Verification Standard)**.
+* Đề tài được thực hiện bằng phương pháp **giả lập/mô phỏng phần mềm không dây** (qua Cooja Simulator) và **thiết lập cấu hình an toàn trên tài liệu/mã nguồn**, không yêu cầu trang bị phần cứng vật lý chuyên dụng.
 
 ---
 
-## 3. BẢNG ÁNH XẠ GIAO THỨC - CỔNG - CƠ CHẾ BẢO MẬT
+## 2. CƠ SỞ LÝ THUYẾT VỀ MẠNG ZIGBEE & BẢO MẬT
 
-Dưới đây là sơ đồ phân tích các tầng giao tiếp trong một hệ thống Smart Home tích hợp điều phối Zigbee ảo hóa, chỉ ra các cổng dịch vụ và cơ chế bảo vệ tương ứng.
+### 2.1. Thành phần và vai trò trong mạng Zigbee
+Mạng lưới Zigbee được xây dựng dựa trên cấu trúc hình cây (Tree), hình sao (Star) hoặc hình lưới (Mesh). Một mạng Zigbee tiêu chuẩn luôn gồm ba vai trò chính:
 
-| Lớp (Layer) | Giao thức (Protocol) | Cổng mặc định (Port) | Cơ chế bảo mật chính | Mô tả và Nguy cơ trong môi trường Mô phỏng |
-| :--- | :--- | :--- | :--- | :--- |
-| **Physical / MAC** | IEEE 802.15.4 / Zigbee (Mô phỏng) | Không có (Sóng RF 2.4 GHz ảo - Kênh 11-26) | - Mã hóa AES-128 CCM.<br>- Khóa mạng (Network Key) chung để mã hóa lưu lượng lớp mạng.<br>- Khóa liên kết (Link Key) bảo vệ khóa mạng khi ghép đôi. | **Mô phỏng nguy cơ**: Trong phần mềm mô phỏng (như Cooja), nếu sử dụng khóa liên kết mặc định (`ZigBeeAlliance09`), node tấn công dễ dàng nghe lén (sniff) và trích xuất Network Key khi thiết bị mới gia nhập mạng. |
-| **Transport / Session** | MQTT (Message Queuing Telemetry Transport) | **1883** (Không mã hóa)<br>**8883** (Mật mã TLS) | - Xác thực bằng Username/Password.<br>- Mã hóa TLS/SSL toàn bộ lưu lượng giữa Gateway ảo (Zigbee2MQTT) và MQTT Broker (Mosquitto). | **Mô phỏng nguy cơ**: Cấu hình mặc định cho phép kết nối ẩn danh (Anonymous) hoặc không mã hóa (Port 1883), dẫn đến nguy cơ dữ liệu ảo bị nghe lén và chèn lệnh điều khiển giả mạo. |
-| **Application** | HTTP / HTTPS (Web Frontend - Zigbee2MQTT) | **8080** (TCP) | - HTTPS (TLS 1.2/1.3) bằng chứng chỉ SSL.<br>- Xác thực người dùng thông qua mật khẩu đăng nhập frontend.<br>- Hạn chế truy cập theo IP nguồn (IP Whitelisting). | **Mô phỏng nguy cơ**: Giao diện điều khiển Zigbee2MQTT ảo mặc định không yêu cầu mật khẩu. Bất kỳ ai trong cùng mạng LAN ảo đều có thể truy cập để sửa đổi cấu hình hoặc xóa thiết bị mô phỏng. |
-| **Application** | HTTP / HTTPS (Home Assistant Core Web UI) | **8123** (TCP) | - HTTPS (SSL/TLS).<br>- Xác thực đa yếu tố (MFA).<br>- Access Token (Long-Lived Access Tokens) cho API.<br>- Tự động chặn các IP thử đăng nhập sai nhiều lần (IP Ban). | **Mô phỏng nguy cơ**: Tấn công Brute Force tài khoản quản trị giao diện điều khiển nếu không kích hoạt MFA và IP Ban; lộ dữ liệu điều khiển nhà thông minh mô phỏng nếu chạy HTTP. |
-| **Session** | WebSockets / WSS (Realtime data stream) | Tích hợp trong cổng HTTP/HTTPS | - Chuyển nâng cấp giao thức từ HTTPS sang Secure WebSockets (WSS).<br>- Xác thực token tại pha kết nối đầu tiên. | **Mô phỏng nguy cơ**: Kẻ tấn công trung gian (MITM) trong mạng LAN ảo nghe lén trạng thái thiết bị mô phỏng trong thời gian thực nếu không sử dụng TLS (WSS). |
-| **Network Service** | mDNS (Multicast DNS) | **5353** (UDP) | - Chỉ mở trên giao diện mạng nội bộ ảo.<br>- Cấu hình lọc gói mDNS qua Firewall nếu có nhiều phân đoạn mạng (VLAN). | **Mô phỏng nguy cơ**: Rò rỉ thông tin về sự tồn tại của Home Assistant / Gateway IoT ảo cho các thiết bị khác trong cùng mạng WiFi ảo. |
-| **Management** | SSH (Secure Shell - Quản trị Hub ảo) | **22** (TCP) | - Xác thực bằng cặp khóa công khai/tư nhân (SSH Key Pair).<br>- Đổi cổng mặc định (ví dụ sang 2222).<br>- Cấu hình Fail2ban để ngăn chặn Brute force.<br>- Cấm đăng nhập bằng tài khoản `root`. | **Mô phỏng nguy cơ**: Tấn công dò mật khẩu nếu chỉ sử dụng mật khẩu yếu cho tài khoản pi/root trên hệ điều hành máy chủ ảo làm Hub. |
+```mermaid
+graph TD
+    C[Coordinator - Bộ điều phối] --- R1[Router 1 - Bộ định tuyến]
+    C --- R2[Router 2 - Bộ định tuyến]
+    R1 --- E1[End Device 1 - Cảm biến nhiệt]
+    R1 --- E2[End Device 2 - Cảm biến cửa]
+    R2 --- E3[End Device 3 - Bóng đèn]
+    R2 --- R3[Router 3]
+    R3 --- E4[End Device 4]
+    style C fill:#f96,stroke:#333,stroke-width:2px
+    style R1 fill:#9cf,stroke:#333,stroke-width:2px
+    style R2 fill:#9cf,stroke:#333,stroke-width:2px
+    style R3 fill:#9cf,stroke:#333,stroke-width:2px
+```
+
+1. **Coordinator (Bộ điều phối trung tâm)**:
+   * **Vai trò**: Là nút gốc duy nhất thiết lập mạng Zigbee, lựa chọn kênh tần số vô tuyến và gán ID mạng (PAN ID). 
+   * **Tính năng bảo mật**: Coordinator đóng vai trò là **Trust Center (TC - Trung tâm Tin cậy)**. Nó quản lý, phân phối các khóa bảo mật (Network Key, Link Key) cho toàn bộ các thiết bị gia nhập mạng.
+2. **Router (Bộ định tuyến)**:
+   * **Vai trò**: Chuyển tiếp các gói tin giữa các nút nằm ngoài vùng phủ sóng trực tiếp của nhau, giúp mở rộng phạm vi mạng mesh.
+   * **Tính năng**: Thường là các thiết bị có nguồn điện cấp trực tiếp (như công tắc âm tường, bóng đèn thông minh). Chúng có khả năng cho phép các thiết bị con khác kết nối qua chúng để đi về Coordinator.
+3. **End Device (Thiết bị đầu cuối)**:
+   * **Vai trò**: Chỉ giao tiếp trực tiếp với nút cha của nó (Coordinator hoặc Router gần nhất) mà không thực hiện chuyển tiếp gói tin cho thiết bị khác.
+   * **Tính năng**: Thường là các thiết bị chạy bằng pin (cảm biến cửa, cảm biến chuyển động) có thể chuyển sang chế độ ngủ (Sleep mode) để tiết kiệm năng lượng tối đa.
+
+### 2.2. Kiến trúc bảo mật đa tầng của Zigbee
+Cơ chế bảo mật của Zigbee được tích hợp trong hai lớp chính của kiến trúc stack:
+
+* **Lớp mạng (NWK - Network Layer)**: 
+  * Đảm bảo tính bảo mật cho toàn bộ lưu lượng dữ liệu truyền tải nội bộ thông qua việc sử dụng chung một khóa mạng **Network Key (128-bit)**.
+  * Lớp này áp dụng thuật toán mã hóa đối xứng **AES-128 CCM** (Counter with CBC-MAC) để mã hóa dữ liệu và tạo mã xác thực thông điệp **MIC (Message Integrity Code)** nhằm phát hiện hành vi can thiệp trái phép.
+* **Lớp hỗ trợ ứng dụng (APS - Application Support Sublayer)**:
+  * Cho phép bảo mật điểm - điểm (End-to-End) giữa hai thiết bị cụ thể trong mạng bằng cách sử dụng **Link Key (Khóa liên kết)**.
+  * APS mã hóa quá trình truyền tải Network Key từ Trust Center tới một thiết bị mới gia nhập mạng. Nếu không có lớp bảo mật APS, Network Key sẽ phải truyền đi dưới dạng bản rõ (Clear text) qua sóng vô tuyến, tạo lỗ hổng chí mạng.
+
+### 2.3. Các loại Khóa bảo mật (Cryptographic Keys)
+* **Network Key**: Khóa chung cho cả mạng. Mọi thiết bị muốn truyền thông với nhau trong cùng một mạng Zigbee bắt buộc phải sở hữu chung khóa này để giải mã gói tin lớp NWK.
+* **Link Key**: Khóa riêng giữa hai thiết bị (thường là giữa một thiết bị bất kỳ với Trust Center). Link Key được chia làm hai loại:
+  * **Global Link Key (Khóa liên kết mặc định)**: Mặc định là chuỗi `ZigBeeAlliance09` (mã Hex: `5A:69:67:42:65:65:41:6C:6C:69:61:6E:63:65:30:39`). Được cài sẵn trên hầu hết các thiết bị thương mại để đảm bảo tính tương thích và dễ dàng ghép cặp.
+  * **Unique Link Key / Install Code (Khóa liên kết duy nhất)**: Được tạo ra dựa trên một chuỗi số (Install Code) dán nhãn vật lý trên vỏ thiết bị do nhà sản xuất cung cấp. Khóa này chỉ có thiết bị đó và Coordinator biết, mang lại độ bảo mật cao nhất khi ghép cặp thiết bị mới.
+
+### 2.4. Giới thiệu các dự án nguồn mở tham chiếu
+* **Zigbee2MQTT ([Koenkk/zigbee2mqtt](https://github.com/Koenkk/zigbee2mqtt))**:
+  * Là một giải pháp cầu nối (Bridge) mã nguồn mở rất phổ biến. Nó đọc dữ liệu thô từ USB Dongle Zigbee (chạy chip CC2652, CC2531...) và chuyển đổi (map) các gói tin Zigbee thành các bản tin dạng JSON truyền qua giao thức MQTT.
+  * Zigbee2MQTT đóng vai trò cấu hình và vận hành Coordinator. Bảo mật của hệ thống Smart Home phụ thuộc lớn vào việc cấu hình tệp `configuration.yaml` của dịch vụ này.
+* **zigpy ([zigpy/zigpy](https://github.com/zigpy/zigpy))**:
+  * Thư viện Python triển khai toàn bộ stack Zigbee độc lập. Nó được sử dụng trong các hệ thống tự động hóa nhà ở như Home Assistant (phần tích hợp ZHA). Hiểu zigpy giúp phân tích cách các API nội bộ quản lý cơ sở dữ liệu khóa và xử lý khung truyền nhận vô tuyến.
+* **OWASP ISVS ([OWASP/IoT-Security-Verification-Standard-ISVS](https://github.com/OWASP/IoT-Security-Verification-Standard-ISVS))**:
+  * Tiêu chuẩn kiểm tra an ninh IoT toàn diện. Tài liệu này cung cấp các checklist cụ thể cho phần cứng, phần mềm, truyền thông vô tuyến và tầng cổng kết nối (Gateway). Đề tài sẽ trích lọc các tiêu chí của ISVS để xây dựng bảng checklist bảo mật cho hệ thống Zigbee-MQTT.
 
 ---
 
-## 4. ĐỐI CHIẾU CẤU HÌNH MẶC ĐỊNH VÀ CẤU HÌNH AN TOÀN
+## 3. PHƯƠNG PHÁP THỰC HIỆN & MÔ HÌNH HỆ THỐNG
 
-Bảng đối chiếu dưới đây làm rõ sự khác biệt giữa cấu hình mặc định (mức độ an toàn thấp) và cấu hình khuyến nghị (mức độ an toàn cao) đối với bộ Coordinator mô phỏng (ví dụ qua cấu hình Zigbee2MQTT).
-
-| Khía cạnh cấu hình | Cấu hình Mặc định (Kém an toàn) | Cấu hình Khuyến nghị (An toàn / Hardened) | Cơ chế & Tác động bảo mật trong mô phỏng |
-| :--- | :--- | :--- | :--- |
-| **Khóa mạng (Network Key)** | - Sử dụng một khóa cố định mặc định (Ví dụ: `[1, 3, 5, 7, ...]` hoặc khóa tĩnh). | - Cấu hình khóa mạng được sinh ngẫu nhiên hoàn toàn (Ví dụ: `network_key: generate`). | **Tác động**: Ngăn chặn node tấn công giải mã toàn bộ dữ liệu lưu thông trong mạng ảo. Khóa mạng ngẫu nhiên buộc kẻ tấn công phải sniffing trực tiếp thời điểm pairing để dò khóa. |
-| **Gia nhập mạng (Permit Join)** | - Trạng thái cho phép thiết bị mới kết nối luôn ở trạng thái Bật (`permit_join: true`). | - Mặc định tắt trạng thái gia nhập mạng (`permit_join: false`), chỉ mở thủ công khi cần ghép đôi và tự động tắt sau 60-120 giây. | **Tác động**: Ngăn chặn node tấn công giả mạo (Rogue Node) tự động đăng ký vào mạng Zigbee mô phỏng để thu thập dữ liệu hoặc thực hiện lệnh tấn công từ bên trong. |
-| **Khóa liên kết (Link Key)** | - Sử dụng khóa liên kết mặc định toàn cầu (`ZigBeeAlliance09`). | - Sử dụng **Mã cài đặt (Install Code)** riêng biệt cho từng thiết bị ảo (chỉ có trên Zigbee 3.0). | **Tác động**: Khi thiết bị mới gia nhập mạng, khóa mạng (Network Key) truyền đi qua sóng ảo được mã hóa bằng Link Key duy nhất sinh từ Install Code thay vì khóa mặc định dễ bị Wireshark giải mã. |
-| **Mã định danh mạng (PAN ID / ExtPAN ID)** | - Sử dụng các giá trị mặc định của bộ điều phối ảo (Ví dụ: PAN ID: `0x1a2b`, Extended PAN ID: `0xdddddddddddddddd`). | - Cấu hình thay đổi sang các giá trị ngẫu nhiên và duy nhất trong khu vực mô phỏng. | **Tác động**: Hạn chế việc quét mạng không dây ảo xác định được hệ thống điều phối thông qua các giá trị mặc định. |
-| **Cập nhật Firmware qua sóng (OTA Updates)** | - Cho phép cập nhật tự động từ bất kỳ nguồn ảo nào mà không kiểm tra chữ ký. | - Chỉ cho phép cập nhật từ nguồn đáng tin cậy đã được xác thực và có chữ ký số. | **Tác động**: Ngăn chặn node tấn công phát sóng firmware mô phỏng giả mạo chứa mã độc để chiếm quyền điều khiển phần cứng ảo. |
-| **Giao diện cấu hình Web (Frontend UI)** | - Chạy HTTP không mật khẩu, lắng nghe trên mọi giao diện mạng ảo (`0.0.0.0:8080`). | - Kích hoạt xác thực (mật khẩu mạnh), chỉ lắng nghe trên giao diện cục bộ (`127.0.0.1`) và proxy qua HTTPS. | **Tác động**: Ngăn chặn người dùng lạ trong mạng LAN ảo truy cập trái phép trang quản trị. |
-| **Kênh tần số (Channel)** | - Sử dụng kênh mặc định (thường là kênh 11). | - Quét và chọn kênh Zigbee ảo ít bị nhiễu và ít chồng lấn nhất với các mạng Wi-Fi ảo lân cận (Ví dụ: Kênh 15, 20, 25). | **Tác động**: Giảm thiểu nguy cơ bị tấn công từ chối dịch vụ vật lý ảo (Jamming) vô tình hoặc cố ý từ sóng Wi-Fi ảo cường độ cao lân cận. |
-
----
-
-## 5. MÔ HÌNH MÔ PHỎNG LAB & KỊCH BẢN KIỂM CHỨNG BẢO MẬT
-
-### 5.1. Sơ đồ Kiến trúc Lab Mô phỏng
-Mạng lưới thiết bị Zigbee ảo được dựng trên trình mô phỏng **Cooja** (chạy trên hệ điều hành Ubuntu/Kali Linux ảo). Lưu lượng RF ảo được thu thập trực tiếp từ Radio Logger và chuyển tiếp đến Wireshark để phân tích.
+### 3.1. Sơ đồ kiến trúc kết nối mạng Zigbee sang MQTT
+Dữ liệu từ các cảm biến vật lý hoặc giả lập chạy qua mạng mesh Zigbee, đi qua bộ chuyển đổi giao thức và được hiển thị trên giao diện người dùng. Sơ đồ kiến trúc kết nối được mô tả như sau:
 
 ```mermaid
 graph LR
-    subgraph Cooja Network Simulator
-        A[Node Coordinator ảo] <-->|Kênh truyền sóng ảo 2.4GHz| B[Node Cảm biến cửa ảo]
-        A <-->|Kênh truyền sóng ảo 2.4GHz| C[Node Bóng đèn thông minh ảo]
-        D[Node Tấn công ảo] -.->|Nghe lén / Sniffing| A
+    subgraph Mạng Không dây Zigbee
+        ED[End Device: Cảm biến] <-->|Sóng RF 2.4GHz| R[Router: Bóng đèn]
+        R <-->|Sóng RF 2.4GHz| C[Coordinator: USB Dongle]
+        ED <-->|Sóng RF 2.4GHz| C
     end
     
-    A -->|Xuất tệp dữ liệu mạng ảo| E[zigbee_sim.pcap]
-    E -->|Phân tích gói tin| F[Wireshark]
+    subgraph Cầu nối & Xử lý (Gateway)
+        C <-->|Giao tiếp Serial UART /dev/ttyUSB0| Z2M[Zigbee2MQTT Bridge]
+    end
+    
+    subgraph Hạ tầng Mạng LAN & Dashboard
+        Z2M <-->|MQTT over TLS Cổng 8883| Broker[Mosquitto MQTT Broker]
+        Broker <-->|API / WebSockets| HA[Home Assistant Core]
+        HA <-->|HTTPS Cổng 8123| Web[User Dashboard / Web UI]
+    end
+    
+    style C fill:#f96,stroke:#333,stroke-width:2px
+    style Z2M fill:#f9f,stroke:#333,stroke-width:2px
+    style Broker fill:#9f9,stroke:#333,stroke-width:2px
+    style HA fill:#9cf,stroke:#333,stroke-width:2px
 ```
 
-### 5.2. Kịch bản Mô phỏng 1: Sniffing & Trích xuất khóa mạng (Network Key)
-1. **Dò kênh và lưu gói tin**: Kích hoạt **Radio Logger** trong Cooja, cấu hình lưu dữ liệu dưới dạng tệp tin pcap (`zigbee_sim.pcap`).
-2. **Bắt pha ghép đôi (Pairing)**: Reset node cảm biến cửa ảo để gửi yêu cầu gia nhập mạng. Coordinator gửi gói tin chứa Network Key đến cảm biến.
-3. **Giải mã trên Wireshark**:
-   * Mở tệp `zigbee_sim.pcap` bằng Wireshark.
-   * Cấu hình khóa liên kết mặc định `5A:69:67:42:65:65:41:6C:6C:69:61:6E:63:65:30:39` (ASCII: `ZigBeeAlliance09`) trong phần cấu hình của giao thức ZigBee.
-   * Kết quả: Wireshark giải mã thành công gói tin **"Transport Key"** ở tầng APS và hiển thị khóa mạng **Network Key** dưới dạng rõ ràng (Clear text).
+### 3.2. Sơ đồ luồng dữ liệu (Data Flow Diagram - DFD) và Topic MQTT
+Dưới đây là luồng gói tin thực tế khi thiết bị gửi dữ liệu lên Dashboard và khi người dùng ra lệnh điều khiển thiết bị:
 
-### 5.3. Kịch bản Mô phỏng 2: Tấn công phát lại (Replay Attack)
-1. **Bắt gói tin điều khiển**: Tìm kiếm và trích xuất gói tin điều khiển (ZCL Command: On/Off) được gửi từ Coordinator ảo đến bóng đèn ảo. Lưu gói tin này vào tệp `control_cmd.pcap`.
-2. **Thực thi tấn công phát lại**: Sử dụng script Python (Scapy) hoặc tính năng Packet Sender của node tấn công ảo trong Cooja để gửi lại chính xác gói tin điều khiển đó vào kênh không dây ảo.
-3. **Kết quả**: Node bóng đèn ảo chấp nhận gói tin và đổi trạng thái (bật sang tắt hoặc ngược lại) mà không phát hiện ra gói tin do node tấn công phát lại.
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Người dùng
+    participant UI as Dashboard Web (8123)
+    participant HA as Home Assistant Core
+    participant Broker as Mosquitto Broker (8883)
+    participant Z2M as Zigbee2MQTT Bridge
+    participant Coord as Coordinator (Zigbee)
+    participant Node as End Device (Bóng đèn)
 
-### 5.4. File cấu hình mẫu an toàn của Zigbee2MQTT ảo (`configuration.yaml`)
+    Note over User, Node: KỊCH BẢN 1: BÁO CÁO TRẠNG THÁI CẢM BIẾN (Uplink)
+    Node->>Coord: Gửi bản tin ZCL (Báo cáo trạng thái bóng đèn bật) qua RF
+    Coord->>Z2M: Chuyển tiếp bản tin Hex qua giao tiếp Serial (UART)
+    Note over Z2M: Giải mã gói tin Zigbee thô thành JSON:<br>{"state": "ON", "brightness": 255}
+    Z2M->>Broker: Publish JSON lên topic: "zigbee2mqtt/den_phong_khach" (TLS 8883)
+    Broker->>HA: Chuyển tiếp bản tin (HA đã subscribe topic này)
+    HA->>UI: Cập nhật trạng thái thời gian thực qua Secure WebSockets (WSS)
+    UI->>User: Hiển thị bóng đèn đang sáng màu vàng trên màn hình
+
+    Note over User, Node: KỊCH BẢN 2: ĐIỀU KHIỂN THIẾT BỊ TỪ DASHBOARD (Downlink)
+    User->>UI: Nhấp nút "Tắt đèn" trên giao diện Web
+    UI->>HA: Gửi yêu cầu HTTP POST /api/services/light/turn_off
+    HA->>Broker: Publish {"state": "OFF"} lên topic: "zigbee2mqtt/den_phong_khach/set"
+    Broker->>Z2M: Chuyển tiếp bản tin điều khiển sang Bridge
+    Note over Z2M: Mã hóa JSON thành khung truyền Zigbee ZCL tắt thiết bị
+    Z2M->>Coord: Gửi frame điều khiển qua Serial
+    Coord->>Node: Phát sóng RF 2.4GHz gói tin điều khiển đã mã hóa AES-128
+    Node->>Node: Xác thực mã MIC, giải mã thành công và tắt bóng đèn
+```
+
+### 3.3. Đặc tả Topic và Request/Response chính
+1. **Topic cập nhật trạng thái (Uplink)**: 
+   * **Topic**: `zigbee2mqtt/[device_friendly_name]`
+   * **Payload (JSON)**:
+     ```json
+     {
+       "state": "ON",
+       "brightness": 254,
+       "linkquality": 115,
+       "update": {"state": "idle"},
+       "battery": 98
+     }
+     ```
+2. **Topic ra lệnh điều khiển (Downlink)**:
+   * **Topic**: `zigbee2mqtt/[device_friendly_name]/set`
+   * **Payload gửi đi (JSON)**:
+     ```json
+     {
+       "state": "OFF"
+     }
+     ```
+3. **Topic quản lý trạng thái của Bridge (Telemetry)**:
+   * **Topic**: `zigbee2mqtt/bridge/state`
+   * **Payload**: `online` hoặc `offline` (Dùng LWT - Last Will and Testament để phát hiện Gateway mất kết nối).
+
+---
+
+## 4. PHÂN TÍCH RỦI RO QUÁ TRÌNH GIA NHẬP MẠNG
+
+### 4.1. Quá trình gia nhập mạng (Association) tiêu chuẩn
+Khi một thiết bị Zigbee mới muốn tham gia vào mạng, quá trình bắt tay được thực hiện theo các bước sau:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant ED as Thiết bị mới (End Device)
+    participant C as Coordinator (Trust Center)
+    
+    Note over C: Admin bật Permit Join (permit_join: true)
+    ED->>C: Phát Beacon Request (Tìm kiếm các mạng Zigbee lân cận)
+    C->>ED: Phản hồi Beacon (Chứa thông tin PAN ID, cho phép Join)
+    ED->>C: Gửi Association Request (Yêu cầu gia nhập mạng)
+    C->>ED: Gửi Association Response (Chấp nhận và gán địa chỉ ngắn 16-bit)
+    Note over C, ED: Pha trao đổi khóa bảo mật (Key Exchange Phase)
+    C->>ED: Gửi gói tin Transport Key (Lớp APS) chứa khóa mạng Network Key.<br>Gói tin này được mã hóa bằng Link Key.
+    Note over ED: Thiết bị giải mã Transport Key lấy Network Key.<br>Từ thời điểm này, mọi giao tiếp được mã hóa bằng Network Key.
+    ED->>C: Gửi Device Announce (Thông báo thiết bị đã hoạt động với Network Key)
+```
+
+### 4.2. Rủi ro khi thêm thiết bị mới và Quản lý khóa mạng
+Lỗ hổng bảo mật cốt lõi nằm ở **Bước số 6 (Pha trao đổi khóa)**:
+* **Sự cố rò rỉ khóa qua Link Key mặc định**: Để đảm bảo mọi thiết bị từ các nhà sản xuất khác nhau đều có thể kết nối ngay lập tức, đặc tả Zigbee Home Automation quy định một khóa liên kết mặc định toàn cầu (`ZigBeeAlliance09`). Nếu thiết bị mới và Coordinator sử dụng khóa này, gói tin `Transport Key` truyền qua sóng vô tuyến sẽ được mã hóa bằng khóa công khai đã biết này.
+* **Nguy cơ nghe lén**: Kẻ tấn công đặt một thiết bị bắt gói tin vô tuyến ảo (Sniffer) trong khu vực, bắt lại toàn bộ quá trình ghép cặp. Do khóa `ZigBeeAlliance09` được công khai và tích hợp sẵn trong Wireshark, kẻ tấn công có thể giải mã gói tin `Transport Key` ở bước 6 để lấy ra **Network Key** dạng rõ ràng. Khi đã có Network Key, kẻ tấn công hoàn toàn giải mã và kiểm soát được toàn bộ lưu lượng dữ liệu tiếp theo của mạng lưới.
+* **Nguy cơ thiết bị lạ (Rogue Node) tham gia mạng**: Nếu quản trị viên cấu hình bật tính năng cho phép thiết bị mới gia nhập mạng vô hạn (`permit_join: true` liên tục), kẻ tấn công ở gần có thể cấu hình một node giả lập gửi yêu cầu gia nhập mạng. Coordinator sẽ tự động chấp nhận, cấp Network Key cho thiết bị lạ và cho phép nó gửi các lệnh điều khiển nguy hiểm từ bên trong mạng mesh.
+
+---
+
+## 5. ĐÁNH GIÁ BẢO MẬT CHUYÊN SÂU & KỸ THUẬT TẤN CÔNG
+
+Để minh chứng cho các lỗ hổng bảo mật vô tuyến trên mạng Zigbee mô phỏng, phần này phân tích 5 khía cạnh tấn công và phòng thủ chính:
+
+### 5.1. Nghe lén (Sniffing)
+* **Phương thức**: Kẻ tấn công sử dụng các công cụ như KillerBee (ví dụ: lệnh `zbsniff`) hoặc tính năng Radio Logger trong trình giả lập Cooja để bắt các khung truyền IEEE 802.15.4 ảo trên kênh tần số vô tuyến đang chạy mạng Zigbee (thường là kênh 11). Dữ liệu sau đó được ghi ra tệp `.pcap`.
+* **Hậu quả**: Khi mở tệp này bằng Wireshark, nếu Trust Center sử dụng khóa liên kết mặc định, Wireshark sẽ tự động giải mã và hiển thị thông tin gói tin thô. Kẻ tấn công đọc được toàn bộ trạng thái cảm biến (ví dụ: cảm biến cửa báo trạng thái `0x00` - Đã mở), xâm phạm quyền riêng tư của người dùng.
+
+### 5.2. Giả mạo (Spoofing)
+* **Phương thức**: Khi đã trích xuất được khóa Network Key qua cuộc tấn công Sniffing ở pha ghép cặp, kẻ tấn công có thể tạo ra các khung truyền mạng Zigbee ảo có địa chỉ nguồn (MAC Address) giả mạo một cảm biến nhiệt độ hoặc cảm biến báo cháy trong nhà thông minh.
+* **Hậu quả**: Thiết bị Coordinator nhận gói tin, xác thực mã MIC hợp lệ (vì kẻ tấn công dùng đúng Network Key để tính toán MIC), và cập nhật thông tin giả mạo lên Dashboard. Điều này có thể kích hoạt các kịch bản báo động giả liên tục hoặc vô hiệu hóa các kịch bản tự động hóa an toàn.
+
+### 5.3. Phát lại (Replay Attack)
+* **Phương thức**: Kẻ tấn công ghi lại một gói tin điều khiển hợp lệ được truyền từ Coordinator đến một bóng đèn hoặc ổ cắm (ví dụ: gói tin ra lệnh bật nguồn điện). Sau đó, không cần phải giải mã hay biết khóa bảo mật, kẻ tấn công phát lại (Replay/Inject) nguyên vẹn gói tin này vào kênh truyền sóng.
+* **Hậu quả**: Trong các phiên bản Zigbee cũ hoặc các thiết bị giá rẻ không thực hiện kiểm tra chặt chẽ số thứ tự khung truyền (**Sequence Number**) hoặc bộ đếm khung truyền lớp mạng (**NWK Frame Counter**), thiết bị nhận sẽ chấp nhận gói tin phát lại như một lệnh mới và đổi trạng thái thiết bị. Điều này đặc biệt nguy hiểm với các thiết bị như khóa cửa thông minh. Ở các hệ thống mới, việc sử dụng mã bảo mật AES-128 CCM tích hợp bộ đếm Frame Counter tăng dần giúp loại bỏ nguy cơ này, nhưng nếu thiết bị không lưu trữ tốt Frame Counter sau khi bị mất nguồn điện đột ngột (Power Cycle), rủi ro phát lại vẫn hiện hữu.
+
+### 5.4. Phân quyền (Authorization)
+* **Phương thức**: Đánh giá tính phân quyền tại hai giao diện trung gian: Giao diện Web Admin của Zigbee2MQTT và MQTT Broker. Nếu cấu hình mặc định không yêu cầu mật khẩu, bất kỳ thiết bị nào trong mạng nội bộ (LAN) đều có thể kết nối.
+* **Hậu quả**: Kẻ tấn công chiếm quyền điều khiển bằng cách kết nối trực tiếp vào MQTT Broker, tự gửi bản tin điều khiển đến topic `zigbee2mqtt/thiet_bi/set` hoặc gửi lệnh xóa thiết bị (`factory reset`) qua API của Zigbee2MQTT.
+
+### 5.5. Mã hóa (Encryption)
+* **Phương thức**: Đánh giá thuật toán mã hóa AES-128 CCM được sử dụng trong Zigbee. Thuật toán này về mặt lý thuyết là rất an toàn và chưa thể bị bẻ khóa bằng các phương pháp toán học thông thường trong thời gian ngắn. Tuy nhiên, điểm yếu nằm ở việc phân phối khóa mật mã. Nếu khóa mật mã không được sinh ngẫu nhiên mà sử dụng chuỗi mặc định dễ đoán, tính năng mã hóa coi như vô hiệu.
+
+---
+
+## 6. ĐỀ XUẤT CẤU HÌNH AN TOÀN CHO HỆ THỐNG
+
+Để bảo vệ toàn diện hệ thống Zigbee trong nhà thông minh, cần áp dụng các biện pháp củng cố cấu hình (Hardening) đồng thời ở cả hai tầng: Mạng vô tuyến Zigbee và Cầu nối truyền tải dữ liệu MQTT.
+
+### 6.1. Bảng đối chiếu cấu hình Mặc định và Cấu hình An toàn
+Dưới đây là bảng so sánh chi tiết các thiết lập trên bộ Gateway trung tâm chạy **Zigbee2MQTT**:
+
+| Tham số cấu hình | Cấu hình mặc định (Nguy hiểm) | Cấu hình an toàn đề xuất (Hardened) | Giải thích kỹ thuật & Tác động bảo mật |
+| :--- | :--- | :--- | :--- |
+| `permit_join` | `true` (Mở liên tục) | `false` (Luôn tắt) | Chỉ mở khi cần thêm thiết bị mới và tự động tắt sau 60-120 giây. Ngăn chặn thiết bị lạ tự động gia nhập mạng. |
+| `network_key` | Sử dụng chuỗi số mặc định hoặc dễ đoán. | `generate` (Tự động sinh ngẫu nhiên) | Zigbee2MQTT tự tạo khóa mạng 128-bit ngẫu nhiên và duy nhất khi khởi động lần đầu, triệt tiêu nguy cơ đoán khóa. |
+| `pan_id` | `0x1a2b` | Ngẫu nhiên (Ví dụ: `0x4f8d`) | Hạn chế việc quét mạng dò tìm loại thiết bị dựa trên PAN ID mặc định của nhà sản xuất. |
+| `ext_pan_id` | `[0xdd, 0xdd, 0xdd, 0xdd, ...]` | Ngẫu nhiên (Ví dụ: `[0x2e, 0xa5, 0x9c, ...]`) | Tương tự PAN ID, đổi Extended PAN ID giúp mạng tránh bị nhận diện thụ động bởi các thiết bị quét sóng. |
+| `channel` | Kênh `11` | Kênh `15`, `20`, `25` hoặc `26` | Tránh chồng chéo tần số với các kênh Wi-Fi 2.4GHz phổ biến (kênh 1, 6, 11), giảm thiểu nhiễu và nguy cơ bị tấn công từ chối dịch vụ (Jamming). |
+| `mqtt.server` | `mqtt://localhost:1883` | `mqtts://localhost:8883` | Mã hóa toàn bộ dữ liệu truyền giữa Gateway và MQTT Broker bằng giao thức TLS/SSL, chống nghe lén trong mạng LAN. |
+| `mqtt.user` & `password` | Không thiết lập (Anonymous) | Đặt Username và Mật khẩu độ phức tạp cao. | Ngăn chặn truy cập trái phép và chèn lệnh điều khiển từ các thiết bị khác trong cùng mạng nội bộ. |
+| `frontend` | Bật HTTP không mật khẩu lắng nghe trên `0.0.0.0:8080`. | Lắng nghe trên `127.0.0.1:8443`, kích hoạt HTTPS và đặt `auth_token` bảo mật. | Bảo vệ trang quản trị web của Bridge, chỉ cho phép truy cập cục bộ hoặc thông qua Reverse Proxy (Nginx) có xác thực. |
+
+### 6.2. File cấu hình an toàn thực tế (`configuration.yaml` của Zigbee2MQTT)
+Đoạn mã cấu hình mẫu tối ưu hóa an ninh cho hệ thống:
+
 ```yaml
+# ==============================================================================
+# FILE CẤU HÌNH AN TOÀN CHO ZIGBEE2MQTT (HARDENED CONFIGURATION)
+# ==============================================================================
+
+# Tích hợp với Home Assistant
 homeassistant: true
+
+# 1. Cấu hình bảo mật tầng truyền tải MQTT
 mqtt:
-  server: 'mqtts://localhost:8883' # Sử dụng giao thức mã hóa TLS
-  user: 'secure_gateway'
-  password: 'StrongPassword9876!'
+  server: 'mqtts://127.0.0.1:8883' # Sử dụng giao thức mã hóa TLS
+  user: 'gateway_coordinator_node'  # Tài khoản truy cập broker riêng biệt
+  password: 'Zg2Mqtt_SecurePassword_!2026_#' # Mật khẩu mạnh tự sinh
+  # Cấu hình chứng chỉ bảo mật TLS mã hóa đường truyền
   ca: /app/data/certs/ca.crt
   cert: /app/data/certs/client.crt
   key: /app/data/certs/client.key
+
+# 2. Cấu hình kết nối phần cứng USB Dongle
 serial:
   port: /dev/ttyUSB0
-  adapter: zstack
+  adapter: zstack # Dành cho chip TI CC2652/CC1352
+
+# 3. Củng cố an ninh mạng vô tuyến Zigbee (Hardening Advanced)
 advanced:
-  pan_id: 0x4f8d # PAN ID ngẫu nhiên
-  ext_pan_id: [0x2e, 0xa5, 0x9c, 0x11, 0x8a, 0xbe, 0x3d, 0x74] # Extended PAN ID ngẫu nhiên
-  channel: 25 # Kênh ít trùng lặp Wi-Fi
-  network_key: generate # Sinh ngẫu nhiên Network Key khi khởi chạy lần đầu
-permit_join: false # Mặc định luôn đóng Permit Join
+  pan_id: 0x5d9b # PAN ID ngẫu nhiên (tránh 0x1a2b mặc định)
+  ext_pan_id: [0x3c, 0xf1, 0xa9, 0x22, 0x8b, 0xce, 0x4d, 0x7e] # Ext PAN ID ngẫu nhiên
+  channel: 25 # Kênh 25 ít bị chồng lấn bởi sóng Wi-Fi 2.4GHz
+  
+  # Yêu cầu sinh khóa mạng ngẫu nhiên khi tạo mạng lần đầu tiên
+  network_key: generate
+  
+  # Cài đặt công suất phát sóng (dBm) - Điều chỉnh vừa đủ trong nhà để tránh rò rỉ sóng ra quá xa ngoài đường
+  transmit_power: 10
+
+# 4. Kiểm soát thiết bị gia nhập mạng
+permit_join: false # Mặc định LUÔN đóng. Chỉ mở thủ công qua API trong thời gian giới hạn.
+
+# 5. Bảo mật giao diện Web quản trị (Frontend)
 frontend:
   port: 8443
-  host: 127.0.0.1 # Chỉ lắng nghe cục bộ
-  auth_token: 'SecureTokenExample12345!'
+  host: 127.0.0.1 # Chỉ lắng nghe trên localhost (yêu cầu cấu hình Reverse Proxy HTTPS để truy cập từ ngoài)
+  auth_token: 'Token_Secure_WebUI_Access_9988_!#' # Token xác thực bắt buộc
 ```
 
----
-
-## 6. KẾ HOẠCH TUẦN 03 & CHECKLIST ĐÁNH GIÁ AN TOÀN THÔNG TIN
-
-### 6.1. Kế hoạch Tuần 3
-* **Ngày 1 - 2**: Cấu hình môi trường ảo hóa Docker và dựng sơ đồ mạng Zigbee ảo trên trình mô phỏng Cooja.
-* **Ngày 3 - 4**: Thực hiện các kịch bản mô phỏng tấn công nghe lén (Sniffing) và tấn công phát lại (Replay Attack), thu thập tệp tin `zigbee_sim.pcap`.
-* **Ngày 5**: Triển khai cấu hình an toàn (Hardening) và chạy lại kịch bản tấn công ảo để đối sánh dữ liệu.
-* **Ngày 6**: Đánh giá an ninh hệ thống dựa trên mô hình STRIDE và điền checklist kiểm toán.
-* **Ngày 7**: Tổng kết báo cáo tuần, chuẩn bị slide demo.
-
-### 6.2. Checklist Kiểm toán Bảo mật Hệ thống Mô phỏng
-* **Quản lý Khóa**:
-  - [ ] Khóa mạng (Network Key) đã được cấu hình sinh ngẫu nhiên?
-  - [ ] Hệ thống sử dụng Install Codes (Unique Link Keys) thay vì dùng khóa liên kết mặc định toàn cầu?
-* **Kiểm soát Gia nhập**:
-  - [ ] Tham số `permit_join` mặc định đặt là `false`?
-  - [ ] Có thiết lập thời gian tự động tắt cho Permit Join khi bật thủ công không?
-* **Bảo mật Hạ tầng trung gian**:
-  - [ ] Kết nối đến MQTT Broker sử dụng giao thức TLS (Port 8883)?
-  - [ ] Giao diện Web Frontend quản trị đã cấu hình mật khẩu mạnh và chạy qua HTTPS?
+### 6.3. Giải pháp củng cố bảo mật bổ sung
+1. **Sử dụng Install Codes (Mã cài đặt thiết bị)**:
+   * Đối với các thiết bị Zigbee 3.0, tuyệt đối không dùng phương pháp ghép cặp bằng khóa liên kết mặc định `ZigBeeAlliance09`. 
+   * Thay vào đó, nhập trực tiếp mã Install Code (in trên nhãn thiết bị) vào giao diện Zigbee2MQTT trước khi cho phép thiết bị join. Coordinator sẽ sử dụng Install Code này để sinh ra một khóa liên kết duy nhất (Unique Link Key), dùng riêng để mã hóa gói tin truyền Network Key cho thiết bị đó.
+2. **Sao lưu khóa mạng an toàn (Key Backup)**:
+   * Lưu trữ các tệp tin cấu hình (`configuration.yaml`, `database.db`) tại các thư mục có quyền truy cập hạn chế (chỉ quyền `root` hoặc user `zigbee2mqtt` được phép đọc/ghi).
+   * Định kỳ sao lưu mã hóa các tệp cấu hình này sang máy chủ sao lưu độc lập.
+3. **Bảo mật MQTT Broker (Mosquitto Broker Hardening)**:
+   * Tắt hoàn toàn chế độ kết nối ẩn danh (`allow_anonymous false` trong file `mosquitto.conf`).
+   * Sử dụng cơ chế phân quyền kiểm soát truy cập **ACL (Access Control List)** để quy định rõ: Client `zigbee2mqtt` chỉ được phép publish/subscribe các topic `zigbee2mqtt/#`, còn Client `homeassistant` chỉ được đọc trạng thái và ghi lên topic `/set`. Ngăn chặn việc một thiết bị IoT bị hack ở tầng LAN có thể subscribe và đọc trộm toàn bộ luồng thông tin của các thiết bị khác.
 
 ---
 
-## 7. MÔ HÌNH PHÂN TÍCH MỐI ĐE DỌA STRIDE
+## 7. CHECKLIST BẢO MẬT ZIGBEE & MQTT THEO CHUẨN OWASP ISVS
 
-| Mối đe dọa STRIDE | Nguy cơ cụ thể trong mạng Zigbee mô phỏng | Cơ chế giảm thiểu rủi ro (Mitigation) |
-| :--- | :--- | :--- |
-| **Spoofing** (Giả mạo) | Node tấn công ảo giả dạng một thiết bị cảm biến ảo để gửi dữ liệu giả mạo (ví dụ: báo động giả). | Sử dụng khóa liên kết duy nhất (Unique Link Key) được tạo ra từ Install Code của từng thiết bị ảo. |
-| **Tampering** (Can thiệp) | Node tấn công sửa đổi nội dung gói tin điều khiển trên đường truyền không dây mô phỏng. | Mã hóa dữ liệu ở lớp mạng bằng thuật toán AES-128 CCM kết hợp mã xác thực thông điệp (MIC). |
-| **Repudiation** (Chối bỏ) | Một thiết bị ảo thực hiện hành động nhưng hệ thống không thể chứng minh được do thiếu log ảo hoặc log bị xóa. | Ghi nhật ký tập trung tại MQTT Broker ảo và Home Assistant; phân quyền ghi đè log nghiêm ngặt. |
-| **Information Disclosure** | Node tấn công nghe lén kênh truyền mô phỏng, giải mã lưu lượng truyền tải để thu thập trạng thái thiết bị ảo. | Không sử dụng khóa liên kết mặc định toàn cầu; đảm bảo tất cả lưu lượng luôn được mã hóa. |
-| **Denial of Service** | Gây nhiễu sóng mô phỏng (Jamming) tần số không dây ảo hoặc tấn công làm cạn kiệt pin ảo (Battery-Drain). | Cấu hình chuyển kênh tần số linh hoạt; cấu hình giới hạn tốc độ yêu cầu (Rate limiting) tại Coordinator ảo. |
-| **Elevation of Privilege** | Node tấn công khai thác lỗ hổng tràn bộ đệm trên firmware Coordinator ảo để chiếm quyền điều khiển toàn mạng. | Cập nhật firmware mới nhất cho Coordinator và thiết bị đầu cuối ảo định kỳ; chạy dịch vụ dưới quyền user thường. |
+Bảng kiểm dưới đây được thiết kế dựa trên các tiêu chí tương ứng trong tiêu chuẩn **OWASP IoT Security Verification Standard (ISVS)** phiên bản mới nhất, áp dụng cụ thể cho giải pháp Zigbee2MQTT và hệ thống Smart Home.
+
+| Mã số ISVS | Hạng mục kiểm tra bảo mật (Verification Requirement) | Trạng thái (Đạt/Không) | Biện pháp kỹ thuật áp dụng |
+| :--- | :--- | :--- | :--- |
+| **V1.1** | **Xác thực và phân quyền truy cập cổng Gateway**: Đảm bảo tất cả các giao diện quản trị (Web UI, API) yêu cầu xác thực mạnh trước khi sử dụng. | [ ] Đạt | Đã kích hoạt mật khẩu và `auth_token` trên giao diện Web Frontend của Zigbee2MQTT, đổi cổng mặc định. |
+| **V2.1** | **Bảo mật truyền thông mạng LAN**: Mọi luồng truyền tải dữ liệu giữa Gateway và các dịch vụ khác (MQTT Broker) phải được mã hóa. | [ ] Đạt | Chuyển đổi toàn bộ kết nối sang giao thức `mqtts://` chạy trên cổng 8883 có mã hóa TLS 1.3. |
+| **V2.3** | **Tắt các cổng dịch vụ không mã hóa**: Đảm bảo các cổng giao tiếp không mã hóa (như MQTT Port 1883) được đóng hoàn toàn. | [ ] Đạt | Cấu hình Mosquitto Broker đóng cổng 1883, chỉ mở cổng xác thực TLS 8883. |
+| **V3.2** | **Sinh khóa mật mã ngẫu nhiên**: Các khóa bảo mật mạng không được sử dụng các giá trị mặc định của nhà sản xuất hoặc giá trị dễ đoán. | [ ] Đạt | Sử dụng cấu hình `network_key: generate` để tự động tạo khóa mạng Zigbee ngẫu nhiên 128-bit. |
+| **V3.5** | **Bảo mật pha ghép đôi (Pairing Phase)**: Quá trình phân phối khóa mạng cho thiết bị mới phải sử dụng cơ chế mã hóa riêng biệt. | [ ] Đạt | Áp dụng cơ chế **Install Code (Zigbee 3.0)** để tạo Unique Link Key thay vì dùng khóa mặc định toàn cầu. |
+| **V4.1** | **Giới hạn thời gian gia nhập mạng**: Trạng thái cho phép ghép cặp thiết bị mới chỉ được mở khi cần thiết và có giới hạn thời gian tự động đóng. | [ ] Đạt | Đặt `permit_join: false` mặc định trong cấu hình; thiết lập kịch bản tự động tắt sau 60 giây khi kích hoạt bằng nút bấm vật lý. |
+| **V5.1** | **Phân quyền truy cập tài nguyên MQTT (ACLs)**: Thực hiện nguyên tắc đặc quyền tối thiểu đối với các client kết nối vào MQTT Broker. | [ ] Đạt | Cấu hình tệp tin ACL trên Mosquitto chỉ cho phép các Client đọc/ghi đúng các topic chức năng được chỉ định. |
+| **V6.2** | **Quản lý và cập nhật Firmware an toàn**: Đảm bảo firmware của Coordinator và thiết bị đầu cuối được cập nhật định kỳ và kiểm tra chữ ký số hợp lệ. | [ ] Đạt | Kích hoạt tính năng kiểm tra OTA Updates từ nguồn chính thức của Zigbee2MQTT; chỉ nạp firmware có chữ ký số của nhà sản xuất. |
 
 ---
 
-## 8. TÀI LIỆU THAM KHẢO
+## 8. KẾ LUẬN VÀ TÀI LIỆU THAM KHẢO
 
-1. **Contiki-NG & Cooja Contributors**. *Cooja Simulator for IoT/IEEE 802.15.4 Network Simulation*. Available at: [https://github.com/contiki-ng/contiki-ng](https://github.com/contiki-ng/contiki-ng).
-2. **Wright, J. (2011)**. *KillerBee: Practical Zigbee Exploitation Framework*. SANS Technology Institute. Available at: [https://github.com/riverloopsec/killerbee](https://github.com/riverloopsec/killerbee).
-3. **Koenkk**. *Zigbee2MQTT: Bridge Zigbee devices to MQTT*. Open-source documentation and repository. Available at: [https://github.com/Koenkk/zigbee2mqtt](https://github.com/Koenkk/zigbee2mqtt).
-4. **Zigbee Alliance (2015)**. *Zigbee Specification Revision 21 (R21)*. Document 05-3474-21, Zigbee Alliance.
-5. **Morgner, F., & Müller, T. (2017)**. *SecBee: Automated Zigbee Security Assessment*. Proceedings of the ACM Conference on Security and Privacy in Wireless and Mobile Networks (WiSec). Repo: [https://github.com/iot-sec/secbee](https://github.com/iot-sec/secbee).
-6. **Z-Attack Contributors (2016)**. *Z-Attack: Zigbee Penetration Testing tool*. Source code repository. Available at: [https://github.com/SebaD/Z-Attack](https://github.com/SebaD/Z-Attack).
+### 8.1. Kết luận và Bài học kinh nghiệm
+Thông qua quá trình nghiên cứu và thực nghiệm mô phỏng hệ thống bảo mật Zigbee, nhóm thực hiện đã rút ra các kết luận quan trọng sau:
+
+* **3 bài học học được**:
+  1. *Bảo mật hệ thống là một chuỗi liên kết*: Một hệ thống Smart Home chỉ an toàn khi tất cả các mắt xích đều được bảo vệ. Việc mã hóa rất tốt ở sóng Zigbee sẽ vô tác dụng nếu cổng kết nối MQTT Broker bên trong mạng LAN bị bỏ ngỏ cho phép kết nối không mật khẩu (port 1883).
+  2. *Vai trò quyết định của Quản lý khóa*: Lỗ hổng bảo mật lớn nhất của Zigbee không nằm ở thuật toán AES-128, mà nằm ở phương thức trao đổi khóa mạng. Việc chuyển đổi từ khóa liên kết mặc định (`ZigBeeAlliance09`) sang mã Install Code là yếu tố cốt lõi để chống lại cuộc tấn công nghe lén vô tuyến.
+  3. *Tầm quan trọng của Cấu hình mặc định an toàn (Secure by Default)*: Người dùng và kỹ sư triển khai cần có thói quen thay đổi toàn bộ thông số mặc định (PAN ID, Channel, Network Key, Port) ngay khi thiết lập hệ thống để giảm thiểu tối đa các dấu hiệu nhận biết mạng đối với kẻ tấn công.
+* **2 hạn chế của đề tài**:
+  1. *Chưa triển khai trên thiết bị phần cứng thực tế*: Do giới hạn thiết bị phòng Lab, các kịch bản tấn công nghe lén giải mã và phát lại mới chỉ dừng lại ở mức mô phỏng trên phần mềm Cooja (Contiki-NG) và phân tích các tệp lưu vết pcap ảo, chưa đánh giá được ảnh hưởng của môi trường vật lý thực tế (nhiễu sóng, vật cản).
+  2. *Chưa đánh giá hết các lỗ hổng khai thác firmware (Exploits)*: Đề tài tập trung vào lỗ hổng kiến trúc giao thức và cấu hình hệ thống, chưa đi sâu phân tích các lỗ hổng bảo mật cụ thể trong mã nguồn firmware của các nhà sản xuất phần cứng cụ thể (lỗi tràn bộ đệm, bypass xác thực phần cứng).
+
+### 8.2. Hướng phát triển tiếp theo
+* Dựng mô hình Lab thực tế sử dụng mạch nạp USB Dongle CC2652P kết hợp mạch bắt sóng chuyên dụng (SDR - Software Defined Radio hoặc USB Sniffer CC2531 chạy firmware sniffer) để kiểm chứng khả năng bắt gói tin và giải mã sóng thực tế trong nhà ở gia đình.
+* Nghiên cứu sâu hơn cơ chế cập nhật firmware bảo mật qua sóng (OTA) và cách thức ký số để chống lại mã độc chèn vào thiết bị.
+
+### 8.3. Tài liệu tham khảo
+1. **Koenkk**. *Zigbee2MQTT Documentation: Bridge Zigbee devices to MQTT*. [https://github.com/Koenkk/zigbee2mqtt](https://github.com/Koenkk/zigbee2mqtt).
+2. **zigpy Contributors**. *zigpy: Python implementation of the Zigbee stack*. [https://github.com/zigpy/zigpy](https://github.com/zigpy/zigpy).
+3. **OWASP Foundation**. *IoT Security Verification Standard (ISVS) v1.0*. [https://github.com/OWASP/IoT-Security-Verification-Standard-ISVS](https://github.com/OWASP/IoT-Security-Verification-Standard-ISVS).
+4. **Contiki-NG & Cooja Contributors**. *Cooja Simulator for Wireless Sensor Networks*. [https://github.com/contiki-ng/contiki-ng](https://github.com/contiki-ng/contiki-ng).
+5. **Zigbee Alliance**. *Zigbee Specification Revision 21 (R21) - Security Architecture*. Zigbee Document 05-3474-21.
+6. **Wright, J.** *KillerBee: Practical Zigbee Exploitation Framework*. River Loop Security. [https://github.com/riverloopsec/killerbee](https://github.com/riverloopsec/killerbee).
